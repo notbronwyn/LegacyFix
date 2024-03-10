@@ -1,0 +1,106 @@
+--- net/minecraft/src/GuiMainMenu.java
++++ net/minecraft/src/GuiMainMenu.java
+@@ -75,12 +75,8 @@
+ 		this.controlList.add(new GuiButton(1, this.width / 2 - 100, var4, var2.translateKey("menu.singleplayer")));
+ 		this.controlList.add(this.multiplayerButton = new GuiButton(2, this.width / 2 - 100, var4 + 24, var2.translateKey("menu.multiplayer")));
+ 		this.controlList.add(new GuiButton(3, this.width / 2 - 100, var4 + 48, var2.translateKey("menu.mods")));
+-		if(this.mc.hideQuitButton) {
+-			this.controlList.add(new GuiButton(0, this.width / 2 - 100, var4 + 72, var2.translateKey("menu.options")));
+-		} else {
+-			this.controlList.add(new GuiButton(0, this.width / 2 - 100, var4 + 72 + 12, 98, 20, var2.translateKey("menu.options")));
+-			this.controlList.add(new GuiButton(4, this.width / 2 + 2, var4 + 72 + 12, 98, 20, var2.translateKey("menu.quit")));
+-		}
++		this.controlList.add(new GuiButton(0, this.width / 2 - 100, var4 + 72 + 12, 98, 20, var2.translateKey("menu.options")));
++		this.controlList.add(new GuiButton(4, this.width / 2 + 2, var4 + 72 + 12, 98, 20, var2.translateKey("menu.quit")));
+ 
+ 		this.controlList.add(new GuiButtonLanguage(5, this.width / 2 - 124, var4 + 72 + 12));
+ 		if(this.mc.session == null) {
+--- net/minecraft/src/EntityOtherPlayerMP.java
++++ net/minecraft/src/EntityOtherPlayerMP.java
+@@ -15,7 +15,7 @@
+ 		this.yOffset = 0.0F;
+ 		this.stepHeight = 0.0F;
+ 		if(var2 != null && var2.length() > 0) {
+-			this.skinUrl = "http://s3.amazonaws.com/MinecraftSkins/" + var2 + ".png";
++			this.skinUrl = "https://betacraft.uk/MinecraftSkins/" + var2 + ".png";
+ 		}
+ 
+ 		this.noClip = true;
+--- net/minecraft/src/EntityPlayerSP.java
++++ net/minecraft/src/EntityPlayerSP.java
+@@ -20,7 +20,7 @@
+ 		this.mc = var1;
+ 		this.dimension = var4;
+ 		if(var3 != null && var3.username != null && var3.username.length() > 0) {
+-			this.skinUrl = "http://s3.amazonaws.com/MinecraftSkins/" + var3.username + ".png";
++			this.skinUrl = "https://betacraft.uk/MinecraftSkins/" + var3.username + ".png";
+ 		}
+ 
+ 		this.username = var3.username;
+--- net/minecraft/src/ThreadDownloadResources.java
++++ net/minecraft/src/ThreadDownloadResources.java
+@@ -31,7 +31,8 @@
+ 
+ 	public void run() {
+ 		try {
+-			URL var1 = new URL("http://s3.amazonaws.com/MinecraftResources/");
++			URL var1 = new URL("https://gist.githubusercontent.com/notbronwyn/d2652de51d116f56cdbf5fbdc700e66f/raw/ad434a155897ebe2a90b4a294f2e83dfc0af5fad/MinecraftResources.xml");
++			URL newAssetUrl = new URL("https://resources.download.minecraft.net/");
+ 			DocumentBuilderFactory var2 = DocumentBuilderFactory.newInstance();
+ 			DocumentBuilder var3 = var2.newDocumentBuilder();
+ 			Document var4 = var3.parse(var1.openStream());
+@@ -43,12 +44,19 @@
+ 					if(var8.getNodeType() == 1) {
+ 						Element var9 = (Element)var8;
+ 						String var10 = ((Element)var9.getElementsByTagName("Key").item(0)).getChildNodes().item(0).getNodeValue();
+-						long var11 = Long.parseLong(((Element)var9.getElementsByTagName("Size").item(0)).getChildNodes().item(0).getNodeValue());
+-						if(var11 > 0L) {
+-							this.downloadAndInstallResource(var1, var10, var11, var6);
+-							if(this.closing) {
+-								return;
+-							}
++						try {
++							String hash = ((Element)var9.getElementsByTagName("Hash").item(0)).getChildNodes().item(0).getNodeValue();
++							long var11 = Long.parseLong(((Element)var9.getElementsByTagName("Size").item(0)).getChildNodes().item(0).getNodeValue());
++							if(var11 > 0L) {
++								this.downloadAndInstallResource(newAssetUrl, var10, var11, var6, hash);
++								if(this.closing) {
++									return;
++								}
++ 							}
++ 						}
++						catch (NullPointerException e) {
++							// This just means its a directory
++							// we are chilling
+ 						}
+ 					}
+ 				}
+@@ -81,7 +89,7 @@
+ 
+ 	}
+ 
+-	private void downloadAndInstallResource(URL var1, String var2, long var3, int var5) {
++	private void downloadAndInstallResource(URL var1, String var2, long var3, int var5, String hash) {
+ 		try {
+ 			int var6 = var2.indexOf("/");
+ 			String var7 = var2.substring(0, var6);
+@@ -97,7 +105,7 @@
+ 			if(!var8.exists() || var8.length() != var3) {
+ 				var8.getParentFile().mkdirs();
+ 				String var9 = var2.replaceAll(" ", "%20");
+-				this.downloadResource(new URL(var1, var9), var8, var3);
++				this.downloadResource(new URL(var1+hash.substring(0,2)+"/"+hash), var8, var3);
+ 				if(this.closing) {
+ 					return;
+ 				}
+--- net/minecraft/src/EntityPlayer.java
++++ net/minecraft/src/EntityPlayer.java
+@@ -264,7 +264,7 @@
+ 	}
+ 
+ 	public void updateCloak() {
+-		this.playerCloakUrl = "http://s3.amazonaws.com/MinecraftCloaks/" + this.username + ".png";
++		this.playerCloakUrl = "https://betacraft.uk/MinecraftCloaks/" + this.username + ".png";
+ 		this.cloakUrl = this.playerCloakUrl;
+ 	}
+ 
