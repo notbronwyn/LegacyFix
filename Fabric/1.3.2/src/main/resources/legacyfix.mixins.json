@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.notbronwyn.legacyfix",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "TextureDownloaderMixin",
+    "ResourceDownloadThreadMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

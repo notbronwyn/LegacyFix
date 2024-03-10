@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "notbronwyn",
+  "version": "${version}",
+  "name": "LegacyFix",
+  "description": "This is an example description! Tell everyone what your mod is about!",
+  "authors": [
+    "notbronwyn"
+  ],
+  "contact": {
+    "homepage": "https://modrinth.com/mod/legacyfix",
+    "sources": "https://github.com/notbronwyn/legacyfix"
+  },
+  "license": "CC-BY 4.0",
+  "icon": "assets/legacyfix/icon.png",
+  "environment": "*",
+  "mixins": [
+    "legacyfix.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.19",
+    "minecraft": "1.4.7"
+  }
+}
