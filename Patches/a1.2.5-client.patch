@@ -1,0 +1,89 @@
+--- net/minecraft/src/EntityOtherPlayerMP.java
++++ net/minecraft/src/EntityOtherPlayerMP.java
+@@ -15,7 +15,7 @@
+ 		this.yOffset = 0.0F;
+ 		this.field_9286_aZ = 0.0F;
+ 		if(var2 != null && var2.length() > 0) {
+-			this.skinUrl = "http://www.minecraft.net/skin/" + var2 + ".png";
++			this.skinUrl = "https://betacraft.uk/MinecraftSkins/" + var2 + ".png";
+ 			System.out.println("Loading texture " + this.skinUrl);
+ 		}
+ 
+--- net/minecraft/src/EntityPlayerSP.java
++++ net/minecraft/src/EntityPlayerSP.java
+@@ -15,7 +15,7 @@
+ 		this.mc = var1;
+ 		this.dimension = var4;
+ 		if(var3 != null && var3.inventory != null && var3.inventory.length() > 0) {
+-			this.skinUrl = "http://www.minecraft.net/skin/" + var3.inventory + ".png";
++			this.skinUrl = "https://betacraft.uk/MinecraftSkins/" + var3.inventory + ".png";
+ 			System.out.println("Loading texture " + this.skinUrl);
+ 		}
+ 
+--- net/minecraft/src/ThreadDownloadResources.java
++++ net/minecraft/src/ThreadDownloadResources.java
+@@ -31,7 +31,8 @@
+ 
+ 	public void run() {
+ 		try {
+-			URL var1 = new URL("http://s3.amazonaws.com/MinecraftResources/");
++			URL var1 = new URL("https://gist.githubusercontent.com/notbronwyn/d2652de51d116f56cdbf5fbdc700e66f/raw/ad434a155897ebe2a90b4a294f2e83dfc0af5fad/MinecraftResources.xml");
++			URL newAssetUrl = new URL("https://resources.download.minecraft.net/");
+ 			DocumentBuilderFactory var2 = DocumentBuilderFactory.newInstance();
+ 			DocumentBuilder var3 = var2.newDocumentBuilder();
+ 			Document var4 = var3.parse(var1.openStream());
+@@ -43,12 +44,19 @@
+ 					if(var8.getNodeType() == 1) {
+ 						Element var9 = (Element)var8;
+ 						String var10 = ((Element)var9.getElementsByTagName("Key").item(0)).getChildNodes().item(0).getNodeValue();
+-						long var11 = Long.parseLong(((Element)var9.getElementsByTagName("Size").item(0)).getChildNodes().item(0).getNodeValue());
+-						if(var11 > 0L) {
+-							this.downloadAndInstallResource(var1, var10, var11, var6);
+-							if(this.closing) {
+-								return;
+-							}
++						try {
++							String hash = ((Element)var9.getElementsByTagName("Hash").item(0)).getChildNodes().item(0).getNodeValue();
++							long var11 = Long.parseLong(((Element)var9.getElementsByTagName("Size").item(0)).getChildNodes().item(0).getNodeValue());
++							if(var11 > 0L) {
++								this.downloadAndInstallResource(newAssetUrl, var10, var11, var6, hash);
++								if(this.closing) {
++									return;
++								}
++ 							}
++ 						}
++						catch (NullPointerException e) {
++							// This just means its a directory
++							// we are chilling
+ 						}
+ 					}
+ 				}
+@@ -81,7 +89,7 @@
+ 
+ 	}
+ 
+-	private void downloadAndInstallResource(URL var1, String var2, long var3, int var5) {
++	private void downloadAndInstallResource(URL var1, String var2, long var3, int var5, String hash) {
+ 		try {
+ 			int var6 = var2.indexOf("/");
+ 			String var7 = var2.substring(0, var6);
+@@ -97,7 +105,7 @@
+ 			if(!var8.exists() || var8.length() != var3) {
+ 				var8.getParentFile().mkdirs();
+ 				String var9 = var2.replaceAll(" ", "%20");
+-				this.downloadResource(new URL(var1, var9), var8, var3);
++				this.downloadResource(new URL(var1+hash.substring(0,2)+"/"+hash), var8, var3);
+ 				if(this.closing) {
+ 					return;
+ 				}
+--- net/minecraft/src/NetClientHandler.java
++++ net/minecraft/src/NetClientHandler.java
+@@ -322,7 +322,7 @@
+ 			this.addToSendQueue(new Packet1Login(this.mc.field_6320_i.inventory, "Password", 6));
+ 		} else {
+ 			try {
+-				URL var2 = new URL("http://www.minecraft.net/game/joinserver.jsp?user=" + this.mc.field_6320_i.inventory + "&sessionId=" + this.mc.field_6320_i.field_6543_c + "&serverId=" + var1.username);
++				URL var2 = new URL("https://session.minecraft.net/game/joinserver.jsp?user=" + this.mc.field_6320_i.inventory + "&sessionId=" + this.mc.field_6320_i.field_6543_c + "&serverId=" + var1.username);
+ 				BufferedReader var3 = new BufferedReader(new InputStreamReader(var2.openStream()));
+ 				String var4 = var3.readLine();
+ 				var3.close();

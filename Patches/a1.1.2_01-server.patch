@@ -1,0 +1,11 @@
+--- net/minecraft/src/ThreadLoginVerifier.java
++++ net/minecraft/src/ThreadLoginVerifier.java
+@@ -16,7 +16,7 @@
+ 	public void run() {
+ 		try {
+ 			String var1 = NetLoginHandler.getServerId(this.loginHandler);
+-			URL var2 = new URL("http://www.minecraft.net/game/checkserver.jsp?user=" + this.loginPacket.username + "&serverId=" + var1);
++			URL var2 = new URL("https://session.minecraft.net/game/checkserver.jsp?user=" + this.loginPacket.username + "&serverId=" + var1);
+ 			BufferedReader var3 = new BufferedReader(new InputStreamReader(var2.openStream()));
+ 			String var4 = var3.readLine();
+ 			var3.close();
